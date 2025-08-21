@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: quarkus-svc
+spec:
+  selector:
+    app: quarkus-app
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  type: ClusterIP
