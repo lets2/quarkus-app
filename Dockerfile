@@ -12,8 +12,8 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-# Faz o build usando tipo otimizado e pula testes
-RUN mvn -B -e -DskipTests package -Dquarkus.package.type=fast-jar
+# Faz o build usando tipo otimizado e executa testes
+RUN mvn -B -e -DskipTests=false package -Dquarkus.package.type=fast-jar
 
 # --------------------------------------------------------------------------
 # ----------- STAGE 2: Usa o build do stage anterior para rodar aplicação --
