@@ -17,36 +17,36 @@ pipeline: build minikube-check minikube-load \
 
 # ETAPA 01: Faz o build da imagem docker com tags SemVer e latest
 build:
-	@./scripts/build.sh $(IMAGE_NAME_WITH_TAG) $(IMAGE_NAME_WITH_LATEST_TAG)
+	@./ci-scripts/build.sh $(IMAGE_NAME_WITH_TAG) $(IMAGE_NAME_WITH_LATEST_TAG)
 
 # ETAPA 02: Verifica se minikube está ativo
 minikube-check:
-	@./scripts/minikube_check.sh
+	@./ci-scripts/minikube_check.sh
 
 # ETAPA 03: Carrega imagens no minikube
 minikube-load:
-	@./scripts/minikube_load_img.sh $(IMAGE_NAME_WITH_TAG)
-	@./scripts/minikube_load_img.sh $(IMAGE_NAME_WITH_LATEST_TAG)
+	@./ci-scripts/minikube_load_img.sh $(IMAGE_NAME_WITH_TAG)
+	@./ci-scripts/minikube_load_img.sh $(IMAGE_NAME_WITH_LATEST_TAG)
 
 # ETAPA 04: Deploy no namespace de desenvolvimento
 deploy-des:
-	@./scripts/deploy.sh des $(IMAGE_NAME_WITH_TAG)
+	@./ci-scripts/deploy.sh des $(IMAGE_NAME_WITH_TAG)
 
 # ETAPA 05: Testa se a aplicacao esta ativa no ambiente de desenvolvimento
 verify-app-availability-des:
-	@./scripts/verify_app_availability.sh des
+	@./ci-scripts/verify_app_availability.sh des
 
 # ETAPA 06: Verifica se deve ser feito deploy em prd
 check-prd-permission:
-	@./scripts/check_prd_perm.sh $(ALLOW_PRD_DEPLOYMENT)
+	@./ci-scripts/check_prd_perm.sh $(ALLOW_PRD_DEPLOYMENT)
 
 # ETAPA 07: Deploy no ambiente de producao
 deploy-prd:
-	@./scripts/deploy.sh prd $(IMAGE_NAME_WITH_TAG)
+	@./ci-scripts/deploy.sh prd $(IMAGE_NAME_WITH_TAG)
 
 # ETAPA 08: Testa se a aplicacao esta ativa no ambiente de producao
 verify-app-availability-prd:
-	@./scripts/verify_app_availability.sh prd
+	@./ci-scripts/verify_app_availability.sh prd
 
 # limpeza de artefatos locais
 clean:
