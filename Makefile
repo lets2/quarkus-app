@@ -1,7 +1,6 @@
 # Variaveis
-# TIMESTAMP := $(shell date +'%Y%m%d-%H%M%S')
 ALLOW_PRD_DEPLOYMENT := false
-VERSION ?= $(shell cat version.txt)
+VERSION ?= $(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout 2>/dev/null || 0.0.0-SNAPSHOT)
 COMMIT_SHA ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "beta")
 IMAGE_NAME := quarkus-app
 IMAGE_NAME_WITH_TAG := $(IMAGE_NAME):$(VERSION)-$(COMMIT_SHA)
