@@ -1,79 +1,31 @@
-# Getting started with Quarkus
+# Deployment Automatizado de Aplicação Quarkus em Ambiente Orquestrado Local
 
-This is a minimal CRUD service exposing a couple of endpoints over REST.
+Este repositório contém uma solução para o desafio técnico de **implantação automatizada em ambiente orquestrado**, com foco em práticas de **DevSecOps**.
 
-Under the hood, this demo uses:
+A aplicação escolhida foi baseada no projeto [quarkus-getting-started](https://github.com/quarkusio/quarkus-quickstarts/tree/main/getting-started). Ao código original, foram aplicadas algumas adaptações e melhorias para suportar Swagger/OpenAPI Specification, health check, análise estática com SonarQube e deployment em cluster kubernetes.
 
-- RESTEasy to expose the REST endpoints
-- REST-assured and JUnit 5 for endpoint testing
+## Documentos Importantes
 
-## Requirements
+> Os Links abaixo levam para documentos presentes no diretório **`docs/`**. Visite-os para entender os requisitos, como preparar o ambiente, como executar a pipeline localmente e como validar a aplicação.
+>
+> - [1. Requisitos](./docs/01-requisitos.md)
+> - [2. Instalação e Setup do Ambiente](./docs/02-instalacao-setup-ambiente.md)
+> - [3. Etapas e Execução da Pipeline](./docs/03-pipeline.md)
+> - [4. Validação da Aplicação](./docs/04-validacao.md)
+> - [5. Execução local](./docs/05-rodar-localmente.md)
 
-To compile and run this demo you will need:
+## Entregáveis do Desafio
 
-- JDK 17+
-- GraalVM
+- Cluster Kubernetes local provisionado via **Minikube**
+- Pipeline local de automação (Makefile + scripts bash)
+- Aplicação **Quarkus** compilada e empacotada
+- Imagem de container Docker (base Eclipse Temurin)
+- Deploy da aplicação nos ambientes:
+  - **DES** (Desenvolvimento)
+  - **PRD** (Produção simulado)
+- Documentação técnica detalhada
 
-### Configuring GraalVM and JDK 17+
+## Requisitos Técnicos
 
-Make sure that both the `GRAALVM_HOME` and `JAVA_HOME` environment variables have
-been set, and that a JDK 17+ `java` command is on the path.
-
-See the [Building a Native Executable guide](https://quarkus.io/guides/building-native-image-guide)
-for help setting up your environment.
-
-## Building the application
-
-Launch the Maven build on the checked out sources of this demo:
-
-> ./mvnw package
-
-### Live coding with Quarkus
-
-The Maven Quarkus plugin provides a development mode that supports
-live coding. To try this out:
-
-> ./mvnw quarkus:dev
-
-This command will leave Quarkus running in the foreground listening on port 8080.
-
-1. Visit the default endpoint: [http://127.0.0.1:8080](http://127.0.0.1:8080).
-    - Make a simple change to [src/main/resources/META-INF/resources/index.html](src/main/resources/META-INF/resources/index.html) file.
-    - Refresh the browser to see the updated page.
-2. Visit the `/hello` endpoint: [http://127.0.0.1:8080/hello](http://127.0.0.1:8080/hello)
-    - Update the response in [src/main/java/org/acme/quickstart/GreetingResource.java](src/main/java/org/acme/quickstart/GreetingResource.java). Replace `hello` with `hello there` in the `hello()` method.
-    - Refresh the browser. You should now see `hello there`.
-    - Undo the change, so the method returns `hello` again.
-    - Refresh the browser. You should now see `hello`.
-
-### Run Quarkus in JVM mode
-
-When you're done iterating in developer mode, you can run the application as a
-conventional jar file.
-
-First compile it:
-
-> ./mvnw package
-
-Then run it:
-
-> java -jar ./target/quarkus-app/quarkus-run.jar
-
-Have a look at how fast it boots, or measure the total native memory consumption.
-
-### Run Quarkus as a native executable
-
-You can also create a native executable from this application without making any
-source code changes. A native executable removes the dependency on the JVM:
-everything needed to run the application on the target platform is included in
-the executable, allowing the application to run with minimal resource overhead.
-
-Compiling a native executable takes a bit longer, as GraalVM performs additional
-steps to remove unnecessary codepaths. Use the  `native` profile to compile a
-native executable:
-
-> ./mvnw package -Dnative
-
-After getting a cup of coffee, you'll be able to run this executable directly:
-
-> ./target/getting-started-1.0.0-SNAPSHOT-runner
+- **Imagem de Container Base:** [Docker Hub Eclipse Temurin](https://hub.docker.com/_/eclipse-temurin)
+- **Código da aplicação:** [Quarkus-getting-started](https://github.com/quarkusio/quarkus-quickstarts/tree/main/getting-started)
