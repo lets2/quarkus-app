@@ -8,7 +8,7 @@ resources:
 images:
 - name: app-image
   newName: quarkus-app
-  newTag: 0.1.4-4eaf90c
+  newTag: 1.1.0-SNAPSHOT-fd76ba1
 configMapGenerator:
 - behavior: merge
   literals:
