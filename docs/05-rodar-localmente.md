@@ -67,7 +67,7 @@ Compilar um executável nativo leva um pouco mais de tempo, pois o GraalVM execu
 
 Depois de tomar um café, você poderá executar este executável diretamente:
 
-> ./target/getting-started-1.0.0-SNAPSHOT-runner
+> ./target/quarkus-app-1.0.0-SNAPSHOT-runner
 
 ---
 
