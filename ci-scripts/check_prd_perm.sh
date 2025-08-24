@@ -11,6 +11,10 @@ if [[ "$ALLOW_PRD_DEPLOYMENT" == "true" ]]; then
   echo "✅ Permissão concedida para deploy em PRD.✅";
   exit 0;
 else
-  echo "❌🔒 Deploy em PRD bloqueado por configuracao. ❌ Encerrando com codigo ";
+  echo "❌🔒 Deploy em PRD bloqueado por configuracao. 🔒❌"
+  echo "======================================================================================================="
+	echo "FIM DA PIPELINE"
+	echo "======================================================================================================="
+  echo "Encerrando com codigo:"
   exit 78;
 fi
