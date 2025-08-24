@@ -3,25 +3,25 @@ kind: Kustomization
 namespace: prd
 nameSuffix: -prd
 resources:
-- ../../base
-- ingress.yaml
+  - ../../base
+  - ingress.yaml
 images:
-- name: app-image
-  newName: quarkus-app
-  newTag: 0.1.2-4eaf90c
+  - name: app-image
+    newName: quarkus-app
+    newTag: PLACEHOLDER_TAG
 configMapGenerator:
-- behavior: merge
-  literals:
-  - GREETING_PREFIX=hello-from-PRD
-  name: app-config
+  - behavior: merge
+    literals:
+      - GREETING_PREFIX=hello-from-PRD
+    name: app-config
 patches:
-- patch: |-
-    - op: replace
-      path: /metadata/name
-      value: quarkus-app
-    - op: replace
-      path: /spec/replicas
-      value: 2
-  target:
-    kind: Deployment
-    name: quarkus-app
+  - patch: |-
+      - op: replace
+        path: /metadata/name
+        value: quarkus-app
+      - op: replace
+        path: /spec/replicas
+        value: 2
+    target:
+      kind: Deployment
+      name: quarkus-app

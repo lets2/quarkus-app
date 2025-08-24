@@ -3,25 +3,25 @@ kind: Kustomization
 namespace: des
 nameSuffix: -des
 resources:
-- ../../base
-- ingress.yaml
+  - ../../base
+  - ingress.yaml
 images:
-- name: app-image
-  newName: quarkus-app
-  newTag: 1.1.0-SNAPSHOT-fd76ba1
+  - name: app-image
+    newName: quarkus-app
+    newTag: PLACEHOLDER_TAG
 configMapGenerator:
-- behavior: merge
-  literals:
-  - GREETING_PREFIX=hello-from-DES
-  name: app-config
+  - behavior: merge
+    literals:
+      - GREETING_PREFIX=hello-from-DES
+    name: app-config
 patches:
-- patch: |-
-    - op: replace
-      path: /metadata/name
-      value: quarkus-app
-    - op: replace
-      path: /spec/replicas
-      value: 1
-  target:
-    kind: Deployment
-    name: quarkus-app
+  - patch: |-
+      - op: replace
+        path: /metadata/name
+        value: quarkus-app
+      - op: replace
+        path: /spec/replicas
+        value: 1
+    target:
+      kind: Deployment
+      name: quarkus-app
