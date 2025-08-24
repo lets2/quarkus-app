@@ -10,6 +10,12 @@ Antes de executar a Pipeline Local, certifique-se de que o ambiente esteja prepa
 
 Para disparar a Pipeline local, utiliza-se o [GNU Make](https://www.gnu.org/software/make/#download). No arquivo `./Makefile` existe um target agregador (ou meta-target) chamado **pipeline**, cujo único propósito é chamar outros targets numa sequência definida (a sequência de tasks que compõe a pipeline).
 
+> Importante: lembre-se de dá permissão de execução para os scripts shell da pasta ci-scripts/
+>
+> ```bash
+> sudo chmod -R +x ci-scripts/
+> ```
+
 A partir da raiz do projeto, abra o terminal. Para rodar a pipeline completa, aplique esse comando:
 
 ```bash
