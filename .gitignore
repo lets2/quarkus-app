@@ -1,3 +1,6 @@
+# Arquivo de variaveis de ambiente
+.env
+
 # Eclipse
 .project
 .classpath
