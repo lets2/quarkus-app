@@ -20,10 +20,10 @@ IMAGE_NAME_WITH_LATEST_TAG := $(IMAGE_NAME):latest
 
 # ======= ORDEM DE EXECUÇÃO DA PIPELINE ==========
 
-.PHONY: pipeline build sonar minikube-check minikube-load \
+.PHONY: pipeline build sonar trivy-scan minikube-check minikube-load \
 		deploy-des verify-app-availability-des check-prd-permission deploy-prd verify-app-availability-prd clean
 
-pipeline: build sonar minikube-check minikube-load \
+pipeline: build sonar trivy-scan minikube-check minikube-load \
 		  deploy-des verify-app-availability-des check-prd-permission deploy-prd verify-app-availability-prd
 	@echo "======================================================================================================="
 	@echo "FIM DA PIPELINE"
@@ -36,36 +36,40 @@ pipeline: build sonar minikube-check minikube-load \
 build:
 	@./ci-scripts/build.sh $(IMAGE_NAME_WITH_TAG) $(IMAGE_NAME_WITH_LATEST_TAG)
 
-# ETAPA 01.5: Faz analise estatica com sonar e envia relatorio para o sonar server
+# ETAPA 02: Faz analise estatica com sonar e envia relatorio para o sonar server
 sonar:
 	@./ci-scripts/sonar.sh $(SONAR_SERVER) $(SONAR_PROJECT_KEY) $(SONAR_TOKEN)
 
-# ETAPA 02: Verifica se minikube está ativo
+# ETAPA 03: Faz analise de vulnerabilidade na imagem e miss configuration de manifest k8s
+trivy-scan:
+	@./ci-scripts/trivy_scan.sh $(IMAGE_NAME_WITH_TAG)
+
+# ETAPA 04: Verifica se minikube está ativo
 minikube-check:
 	@./ci-scripts/minikube_check.sh
 
-# ETAPA 03: Carrega imagens no minikube
+# ETAPA 05: Carrega imagens no minikube
 minikube-load:
 	@./ci-scripts/minikube_load_img.sh $(IMAGE_NAME_WITH_TAG)
 	@./ci-scripts/minikube_load_img.sh $(IMAGE_NAME_WITH_LATEST_TAG)
 
-# ETAPA 04: Deploy no namespace de desenvolvimento
+# ETAPA 06: Deploy no namespace de desenvolvimento
 deploy-des:
 	@./ci-scripts/deploy.sh des $(IMAGE_NAME_WITH_TAG)
 
-# ETAPA 05: Testa se a aplicacao esta ativa no ambiente de desenvolvimento
+# ETAPA 07: Testa se a aplicacao esta ativa no ambiente de desenvolvimento
 verify-app-availability-des:
 	@./ci-scripts/verify_app_availability.sh des
 
-# ETAPA 06: Verifica se deve ser feito deploy em prd
+# ETAPA 08: Verifica se deve ser feito deploy em prd
 check-prd-permission:
 	@./ci-scripts/check_prd_perm.sh $(ALLOW_PRD_DEPLOYMENT)
 
-# ETAPA 07: Deploy no ambiente de producao
+# ETAPA 09: Deploy no ambiente de producao
 deploy-prd:
 	@./ci-scripts/deploy.sh prd $(IMAGE_NAME_WITH_TAG)
 
-# ETAPA 08: Testa se a aplicacao esta ativa no ambiente de producao
+# ETAPA 10: Testa se a aplicacao esta ativa no ambiente de producao
 verify-app-availability-prd:
 	@./ci-scripts/verify_app_availability.sh prd
 
