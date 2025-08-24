@@ -9,17 +9,19 @@ echo "--------------------------------------------------------------------------
 
 [ -z "$ENVIRONMENT" -o -z "$IMAGE_REF" ] && { echo "uso: $0 <des|prd> <image_ref>"; exit 1; }
 
-OVERLAY="k8s/overlays/${ENVIRONMENT}"
+tmp_dir=$(mktemp -d)
 
-pushd "$OVERLAY" >/dev/null
+# copia toda a pasta k8s mantendo a estrutura
+cp -r k8s/* "$tmp_dir/"
+
+pushd "$tmp_dir/overlays/${ENVIRONMENT}" > /dev/null
 
 kustomize edit set image app-image="${IMAGE_REF}"
+kubectl create ns des 2>/dev/null || true
+kustomize build . | kubectl apply -f -
 
-popd >/dev/null
+popd > /dev/null
 
-# kubectl create ns des 2>/dev/null || true
-kubectl create namespace "${ENVIRONMENT}" --dry-run=client -o yaml | kubectl apply -f -
-
-kustomize build "$OVERLAY" | kubectl apply -f -
+rm -rf "$tmp_dir"
 
 kubectl -n "${ENVIRONMENT}" rollout status deploy/quarkus-app-${ENVIRONMENT} --timeout=180s
