@@ -6,7 +6,8 @@ A automação foi implementada usando **Makefile** e **scripts bash** (presentes
 
 ## 3.1. Executar a Pipeline
 
-Antes de executar a Pipeline Local, certifique-se de que o ambiente esteja preparado. Se necessário, reveja o item: [2. Instalação e Setup do Ambiente](./02-instalacao-setup-ambiente.md).
+Antes de executar a Pipeline Local, **certifique-se de que o ambiente esteja preparado**. Por exemplo, criar um arquivo `.env` a partir do `.env.example` na raiz do projeto informando as variáveis obrigatórias e seus respectivos valores
+Se necessário, reveja o item: [2. Instalação e Setup do Ambiente](./02-instalacao-setup-ambiente.md), que contém todas as configurações necessárias para que o ambiente fique para execução.
 
 Para disparar a Pipeline local, utiliza-se o [GNU Make](https://www.gnu.org/software/make/#download). No arquivo `./Makefile` existe um target agregador (ou meta-target) chamado **pipeline**, cujo único propósito é chamar outros targets numa sequência definida (a sequência de tasks que compõe a pipeline).
 
