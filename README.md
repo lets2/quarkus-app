@@ -6,7 +6,7 @@ A aplicação escolhida foi baseada no projeto [quarkus-getting-started](https:/
 
 ## Documentos Importantes
 
-> Os Links abaixo levam para documentos presentes no diretório **`docs/`**. Visite-os para entender os requisitos, como preparar o ambiente, como executar a pipeline localmente e como validar a aplicação.
+> Os Links abaixo levam para documentos presentes no diretório **`docs/`**. Visite-os para entender os requisitos, como preparar o ambiente, como é o versionamento, como executar a pipeline localmente e como validar a aplicação.
 >
 > - [1. Requisitos](./docs/01-requisitos.md)
 > - [2. Instalação e Setup do Ambiente](./docs/02-instalacao-setup-ambiente.md)

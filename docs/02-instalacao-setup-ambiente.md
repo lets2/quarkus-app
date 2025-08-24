@@ -105,17 +105,23 @@ Para subir SonarQube localmente, é possível aplicar esse comando:
 docker run -d --name sonarserver -p 9000:9000 sonarqube:9.9.8-community
 ```
 
-Alternativamente, você pode usar o docker-compose.yaml disponível em **`./infra/sonar-server/docker-compose.yaml`**. Basta abrir o terminal, acessar o diretório (`cd infra/sonar-server`) e aplicar o comando a seguir:
+Alternativamente, você pode usar o docker-compose.yaml disponível em **`./infra/sonar-server/docker-compose.yaml`**. Basta abrir o terminal na raiz do projeto e aplicar o comando a seguir:
 
 ```bash
-docker compose -p sonarserver up -d
-
+# supondo terminal na raiz do projeto
 docker compose \
   -f infra/sonar-server/docker-compose.yaml \
   -p sonarserver up -d
 ```
 
-A principal vantagem de usar o arquivo docker-compose.yaml disponível é que ele cria volumes para a persistência dos dados das análises.
+Obs.: Caso o terminal esteja posicionado no diretório **infra/sonar-server** (`cd infra/sonar-server`), é suficiente rodar:
+
+```bash
+# supondo terminal posicionado em infra/sonar-server
+docker compose -p sonarserver up -d
+```
+
+A principal vantagem de usar o arquivo docker-compose.yaml é que ele cria volumes para a persistência dos dados das análises.
 Lembre-se de verificar se o container está ativo:
 
 ```bash
@@ -130,7 +136,7 @@ docker compose -p sonarserver down
 
 ### 2.4.2. Configurar usuário e obter token
 
-Com o servidor do sonarqube disponível, acesse [http://localhost:9000](http://localhost:9000).
+Com o servidor do Sonarqube disponível, acesse [http://localhost:9000](http://localhost:9000).
 As credenciais são
 
 ```
@@ -180,7 +186,8 @@ Substitua o valores entre `< >` pelo real valor da variável. Por exemplo, no it
 - **`IMAGE_NAME` -** Nome da imagem, desconsiderando a tag (caso não esteja definida, a pipeline usa `quarkus-app`)
 
 > **Atenção, insira as informações SEM aspas!**
-> Para ilustrar um exemplo de `.env` devidamente preenchido, observe a seguir:
+
+Para ilustrar um exemplo de `.env` devidamente preenchido, observe a seguir:
 
 ```bash
 SONAR_SERVER=http://localhost:9000
