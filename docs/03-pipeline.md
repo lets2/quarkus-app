@@ -4,7 +4,7 @@
 
 A automação foi implementada usando **Makefile** e **scripts bash** (presentes no diretório **`ci-scripts/`**), simulando o comportamento de uma pipeline CI/CD.
 
-# 3.1. Estratégia de Versionamento
+## 3.1. Estratégia de Versionamento
 
 A pipeline gera automaticamente duas tags para cada build de imagem Docker:
 
