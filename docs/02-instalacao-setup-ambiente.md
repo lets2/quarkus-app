@@ -105,10 +105,14 @@ Para subir SonarQube localmente, é possível aplicar esse comando:
 docker run -d --name sonarserver -p 9000:9000 sonarqube:9.9.8-community
 ```
 
-Alternativamente, você pode usar o docker-compose.yaml disponível em **`./infra/sonar/docker-compose.yaml`**. Basta abrir o terminal, acessar o diretório (`cd infra/sonar`) e aplicar o comando a seguir:
+Alternativamente, você pode usar o docker-compose.yaml disponível em **`./infra/sonar-server/docker-compose.yaml`**. Basta abrir o terminal, acessar o diretório (`cd infra/sonar-server`) e aplicar o comando a seguir:
 
 ```bash
 docker compose -p sonarserver up -d
+
+docker compose \
+  -f infra/sonar-server/docker-compose.yaml \
+  -p sonarserver up -d
 ```
 
 A principal vantagem de usar o arquivo docker-compose.yaml disponível é que ele cria volumes para a persistência dos dados das análises.
@@ -147,40 +151,46 @@ Siga esse passo a passo:
 Após esses passos, você deve obter algo similar a isso:
 
 ```
-Analyze "my-project-key": sqp_fb84a3bcfdaffa9bd62a91c2cbf9fca22e4fcaf0
+Analyze "my-project-key": sqp_fb84a3bcfdaffa9bd62a91c2cbf9fca22e4fcad0
 ```
 
-Nesse caso, `my-project-key` é a chave, e `sqp_fb84a3bcfdaffa9bd62a91c2cbf9fca22e4fcaf0` é o token do projeto. Essas informações devem ser adicionadas em **`ci-scripts/sonar.sh`**.
-
-```bash
-#ci-scripts/sonar.sh
-...
-docker run --rm --network host java-sonar-pipeline bash -c "
-    mvn clean verify sonar:sonar \
-      -Dsonar.projectKey=<PROJECT-KEY> \
-      -Dsonar.host.url=http://localhost:9000 \
-      -Dsonar.login=<TOKEN> \
-      -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-"
-```
-
-> **Atenção, insira as informações geradas SEM aspas!**
-
-Para o exemplo anterior, teríamos:
-
-```bash
-#ci-scripts/sonar.sh
-...
-docker run --rm --network host java-sonar-pipeline bash -c "
-    mvn clean verify sonar:sonar \
-      -Dsonar.projectKey=my-project-key \
-      -Dsonar.host.url=http://localhost:9000 \
-      -Dsonar.login=sqp_fb84a3bcfdaffa9bd62a91c2cbf9fca22e4fcaf0 \
-      -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-"
-```
+Nesse caso, `my-project-key` é a chave, e `sqp_fb84a3bcfdaffa9bd62a91c2cbf9fca22e4fcad0` é o token do projeto. Essas informações devem ser adicionadas em um arquivo `.env`, conforme explicado no próximo item.
 
 Posteriormente, quando o pipeline for executado, uma das etapas faz analise de código e envia o relatório de cobertura para o Sonarqube, disponível em [http://localhost:9000](http://localhost:9000).
+
+# 2.5. Configurar arquivo com variáveis de ambiente
+
+Na raiz do projeto, há um arquivo nomeado `.env.example` que contém um modelo de todas as variáveis necessárias para executar a pipeline.
+Crie uma cópia desse arquivo e, em seguida, renomei a cópia para `.env`. No `.gitignore` está listado o `.env`, portanto, não é um arquivo que será enviado para o repositório remoto. O conteúdo original do arquivo é parecido com este:
+
+```bash
+SONAR_SERVER=http://<sonar-host-server>:<port>
+SONAR_PROJECT_KEY=<project-key>
+SONAR_TOKEN=<token>
+ALLOW_PRD_DEPLOYMENT=<boolean>
+IMAGE_NAME=<image-name>
+```
+
+Substitua o valores entre `< >` pelo real valor da variável. Por exemplo, no item anterior você criou uma **project key** e um **project token**. Esses valores devem ser adicionados no `.env`. Em seguida, apresenta-se uma descrição resumida de cada variável:
+
+- **`SONAR_SERVER` -** Host do servidor do sonar. É comum adotar `http://localhost:9000`
+- **`SONAR_PROJECT_KEY` -** Project key definida no servidor do sonar
+- **`SONAR_TOKEN` -** Project token definido no servidor do sonar, no formato **sqp_hash**
+- **`ALLOW_PRD_DEPLOYMENT` -** Variável booleana que indica se deve ser feito o deploy em prd (caso não esteja definida, a pipeline usa valor `false` como padrão
+- **`IMAGE_NAME` -** Nome da imagem, desconsiderando a tag (caso não esteja definida, a pipeline usa `quarkus-app`)
+
+> **Atenção, insira as informações SEM aspas!**
+> Para ilustrar um exemplo de `.env` devidamente preenchido, observe a seguir:
+
+```bash
+SONAR_SERVER=http://localhost:9000
+SONAR_PROJECT_KEY=my-project-key
+SONAR_TOKEN=sqp_fb84a3bcfdaffa9bd62a91c2cbf9fca22e4fcad0
+ALLOW_PRD_DEPLOYMENT=true
+IMAGE_NAME=quarkus-app
+```
+
+Com o ambiente corretamente configurado, a próxima etapa é conhecer e executar a pipeline.
 
 ---
 

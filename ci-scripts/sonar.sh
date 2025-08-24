@@ -1,12 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-docker build -t java-sonar-pipeline -f infra/sonar-scanner/Dockerfile .
+echo "======================================================================================================="
+echo "[PERMISSION] 🕵️‍♂️ Analise Sonarqube..."
+echo "-------------------------------------------------------------------------------------------------------"
 
-docker run --rm --network host java-sonar-pipeline bash -c "
+SONAR_SERVER="${1:-}";  SONAR_PROJECT_KEY="${2:-}" SONAR_TOKEN="${3:-}" 
+
+[ -z "$SONAR_SERVER" -o -z "$SONAR_PROJECT_KEY" -o -z "$SONAR_TOKEN" ] && \
+    { echo "uso: $0 <http://sonar-host:port> <project-key> <token_sonar>"; exit 1; }
+
+docker build -t sonar-scanner-quarkus -f infra/sonar-scanner/Dockerfile .
+
+docker run --rm --network host sonar-scanner-quarkus bash -c "
     mvn clean verify sonar:sonar \
-      -Dsonar.projectKey=meu-projeto-java \
-      -Dsonar.host.url=http://localhost:9000 \
-      -Dsonar.login=sqp_30ed57d7d605b1942d8e3bf61b16d273f8ca6eb1 \
+      -Dsonar.host.url=${SONAR_SERVER} \
+      -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+      -Dsonar.login=${SONAR_TOKEN} \
       -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 "
