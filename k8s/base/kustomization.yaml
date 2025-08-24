@@ -4,10 +4,6 @@ resources:
   - deployment.yaml
   - service.yaml
   - networkpolicy.yaml
-# images:
-#   - name: app-image
-#     newName: quarkus-getting-started
-#     newTag: base0.0.1
 configMapGenerator:
   - name: app-config
     literals:
