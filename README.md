@@ -14,6 +14,21 @@ A aplicação escolhida foi baseada no projeto [quarkus-getting-started](https:/
 > - [4. Validação da Aplicação](./docs/04-validacao.md)
 > - [5. Execução local](./docs/05-rodar-localmente.md)
 
+## Tecnologias Utilizadas
+
+| Ferramenta     | Descrição                                                                          |
+| -------------- | ---------------------------------------------------------------------------------- |
+| **Docker**     | Build e versionamento de imagens de container                                      |
+| **Minikube**   | Cluster Kubernetes local para testes, validação e ambientes des e prd              |
+| **Kubectl**    | CLI oficial para interagir com clusters Kubernetes/Minikube                        |
+| **Kustomize**  | Gerenciamento de sobreposições e personalização de manifests k8s                   |
+| **GNU Make**   | Simular pipeline local, invocando scripts shell em sequência (build, deploy, etc.) |
+| **Trivy**      | Scanner de vulnerabilidades em imagens Docker e arquivos de manifests k8s          |
+| **SonarQube**  | Análise estática de qualidade de código e relatórios de cobertura                  |
+| **Java (JDK)** | Linguagem de programação e JDK para compilar e executar aplicações Java            |
+| **Maven**      | Gerenciador de build e dependências para projetos Java                             |
+| **Quarkus**    | Framework Java para microsserviços, ideal para k8s                                 |
+
 ## Entregáveis do Desafio
 
 - Cluster Kubernetes local provisionado via **Minikube**
