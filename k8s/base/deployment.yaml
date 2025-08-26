@@ -35,12 +35,12 @@ spec:
               port: http
             initialDelaySeconds: 10
             periodSeconds: 5
-          # livenessProbe:
-          #   httpGet:
-          #     path: /q/health/live
-          #     port: http
-          #   initialDelaySeconds: 15
-          #   periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /q/health/live
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
           resources:
             requests:
               cpu: 100m
