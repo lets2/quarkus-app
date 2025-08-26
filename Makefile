@@ -44,16 +44,19 @@ sonar:
 trivy-scan:
 	@./ci-scripts/trivy_scan.sh $(IMAGE_NAME_WITH_TAG)
 
-# ETAPA 04: Verifica se minikube está ativo
+# ETAPA 04: Verifica se os clusters estão ativos
 minikube-check:
-	@./ci-scripts/minikube_check.sh
+	@./ci-scripts/minikube_check.sh des
+	@./ci-scripts/minikube_check.sh prd
 
-# ETAPA 05: Carrega imagens no minikube
+# ETAPA 05: Carrega imagens nos minikubes
 minikube-load:
-	@./ci-scripts/minikube_load_img.sh $(IMAGE_NAME_WITH_TAG)
-	@./ci-scripts/minikube_load_img.sh $(IMAGE_NAME_WITH_LATEST_TAG)
+	@./ci-scripts/minikube_load_img.sh des $(IMAGE_NAME_WITH_TAG)
+	@./ci-scripts/minikube_load_img.sh prd $(IMAGE_NAME_WITH_TAG)
+#	 @./ci-scripts/minikube_load_img.sh des $(IMAGE_NAME_WITH_LATEST_TAG)
+#	 @./ci-scripts/minikube_load_img.sh prd $(IMAGE_NAME_WITH_LATEST_TAG)
 
-# ETAPA 06: Deploy no namespace de desenvolvimento
+# ETAPA 06: Deploy no ambiente de desenvolvimento
 deploy-des:
 	@./ci-scripts/deploy.sh des $(IMAGE_NAME_WITH_TAG)
 
