@@ -9,8 +9,10 @@ echo "--------------------------------------------------------------------------
 
 [ -z "$ENVIRONMENT" ] && { echo "uso: $0 <des|prd>"; exit 1; }
 
-HOST="${ENVIRONMENT}.minikube"
-IP="$(minikube ip)"
+CLUSTER=${ENVIRONMENT}
+
+HOST="${ENVIRONMENT}.quarkus-app.local"
+IP="$(minikube ip -p "${CLUSTER}")"
 URL="http://${HOST}/hello"
 
 for i in {1..30}; do
@@ -23,4 +25,4 @@ for i in {1..30}; do
   sleep 2
 done
 
-echo "🔴 Falhou: ${URL} (IP ${IP})"; kubectl -n ${ENVIRONMENT} get pods; exit 1
+echo "🔴 Falhou: ${URL} (IP ${IP})"; kubectl --context=${CLUSTER} -n ${ENVIRONMENT} get pods; exit 1
