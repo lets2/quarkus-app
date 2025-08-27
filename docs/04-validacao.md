@@ -12,34 +12,49 @@ Caso ela seja executada com sucesso, ao final do processo teremos a aplicação 
 
 ## 4.1. Testar endpoints
 
-Acessar a raiz do domínio redireciona para o endpoint do Swagger. Além disso, também foi habilitado um endpoint de health check, conforme mostrado a seguir:
+Abra o navegador e acesse a raiz do domínio. Como o projeto original não tinha rota raiz, o autor optou por adicionar um redirecionamento, que leva para o endpoint do Swagger. Além disso, também foi habilitado um endpoint de health check, conforme mostrado a seguir:
 
 - **Swagger UI**:
   ```
-  http://des.minikube/q/swagger-ui
-  http://prd.minikube/q/swagger-ui
+  # usar http://des.quarkus-app.local leva para:
+  http://des.quarkus-app.local/q/swagger-ui
+  http://prd.quarkus-app.local/q/swagger-ui
   ```
 - **Healthcheck**:
 
   ```bash
-  curl http://des.minikube/q/health
-  curl http://prd.minikube/q/health
+  http://des.quarkus-app.local/q/health
+  http://prd.quarkus-app.local/q/health
   ```
 
 - Fique à vontade para exploras outros endpoints:
 
-  ```bash
-  curl http://des.minikube/hello
-  curl http://prd.minikube/hello
-  ```
+      ```bash
+      http://des.quarkus-app.local/hello
+      http://prd.quarkus-app.local/hello
+      ```
+
+![Aplicação de prd](./assets/img06-zprod.png)
+
+Por conta do docker, caso deseje usar curl, em vez de acessar pelo navegador, a sintaxe é um pouco maior (ver [Documentação minikube](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/) ):
+
+```bash
+
+curl --resolve "des.quarkus-app.local:80:$( minikube ip -p des )" \
+    -i http://des.quarkus-app.local/hello
+curl --resolve "prd.quarkus-app.local:80:$( minikube ip -p prd )" \
+    -i http://prd.quarkus-app.local/hello
+```
+
+![Consulta via curl](./assets/img07-curl.png)
 
 ## 4.2. Verificar o status dos pods
 
 Para visualizar os pods de des e prd, aplica-se, respectivamente, os comandos a seguir:
 
 ```bash
-kubectl get -n des pods
-kubectl get -n prd pods
+kubectl --context=des -n des get pods
+kubectl --context=prd -n prd get pods
 ```
 
 A saída deve ser parecida com:
@@ -49,19 +64,21 @@ NAME READY STATUS RESTARTS AGE
 quarkus-app-des-78c4888cf7-wfxj4 1/1 Running 0 97s
 ```
 
-## 4.2. Verificar logs da aplicação
+## 4.3. Verificar logs da aplicação
 
 Sabendo o nome do pod, podemos consultar os logs:
 
 ```bash
-kubectl logs -n des quarkus-app-des-<hash>
-kubectl logs -n prd quarkus-app-prd-<hash>
+kubectl --context=des -n des logs quarkus-app-des-<hash>
+kubectl --context=prd -n prd logs quarkus-app-prd-<hash>
 ```
 
-## 4.3. Verificação de versão da imagem
+## 4.4. Verificação de versão da imagem
+
+Podemos confirmar a versão que está sendo empregada
 
 ```bash
-kubectl describe pod -n des | grep Image:
+kubectl --context=des  describe pod -n des | grep Image:
 ```
 
 Um exemplo de retorno esperado é mostrado a seguir:
@@ -69,6 +86,11 @@ Um exemplo de retorno esperado é mostrado a seguir:
 ```bash
 Image:          quarkus-app:1.1.0-SNAPSHOT-fd76ba1
 ```
+
+## 4.5. Vizualizar relatório de análise
+
+Acesse o servidor do sonarqube em [http://localhost:9000](http://localhost:9000) e procure pelo projeto quarkus-app. Espera-se algo similar a isso:
+![Analise do projeto pelo sonarqube](./assets/img09-sonar-coverage.png)
 
 ---
 

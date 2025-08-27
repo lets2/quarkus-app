@@ -1,6 +1,6 @@
 [⬅️ Voltar para o README](../README.md#requirements#estrutura-da-documentação)
 
-# 3. Etapas e Execução da Pipeline
+# 3. Versionamento, Etapas e Execução da Pipeline
 
 A automação foi implementada usando **Makefile** e **scripts bash** (presentes no diretório **`ci-scripts/`**), simulando o comportamento de uma pipeline CI/CD.
 
@@ -73,9 +73,9 @@ A pipeline executa a seguinte sequência de etapas:
 
    - Verifica se Minikube está ativo
 
-1. **Carregar imagem no Minikube**
+1. **Carregar imagem nos clusters**
 
-   - Carregamento da imagem com tag `<versão-do-pom>-<hash-curto-do-commit-atual>` no Minikube
+   - Carregamento da imagem com tag `<versão-do-pom>-<hash-curto-do-commit-atual>` nos Minikubes
 
 1. **Deploy em DES**
 
@@ -84,7 +84,7 @@ A pipeline executa a seguinte sequência de etapas:
 
 1. **Verificação de disponibilidade de app em DES**
 
-   - Faz algumas requisições usando `curl` para `http://des.minikube` com o objetivo de verificar a disponibilidade da aplicação
+   - Faz algumas requisições usando `curl` para `http://des.quarkus-app.local` com o objetivo de verificar a disponibilidade da aplicação
 
 1. **Aprovação de deploy em PRD**
 
@@ -97,7 +97,7 @@ A pipeline executa a seguinte sequência de etapas:
 
 1. **Verificação de disponibilidade de app em PRD**
 
-   - Faz algumas requisições usando `curl` para `http://prd.minikube` com o objetivo de verificar a disponibilidade da aplicação
+   - Faz algumas requisições usando `curl` para `http://des.quarkus-app.local` com o objetivo de verificar a disponibilidade da aplicação
 
 ---
 

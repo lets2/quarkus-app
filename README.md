@@ -10,7 +10,7 @@ A aplicação escolhida foi baseada no projeto [quarkus-getting-started](https:/
 >
 > - [1. Requisitos](./docs/01-requisitos.md)
 > - [2. Instalação e Setup do Ambiente](./docs/02-instalacao-setup-ambiente.md)
-> - [3. Etapas e Execução da Pipeline](./docs/03-pipeline.md)
+> - [3. Versionamento, Etapas e Execução da Pipeline](./docs/03-pipeline.md)
 > - [4. Validação da Aplicação](./docs/04-validacao.md)
 > - [5. Execução local](./docs/05-rodar-localmente.md)
 
@@ -31,7 +31,7 @@ A aplicação escolhida foi baseada no projeto [quarkus-getting-started](https:/
 
 ## Entregáveis do Desafio
 
-- Cluster Kubernetes local provisionado via **Minikube**
+- Cluster Kubernetes local provisionado (**Minikube**)
 - Pipeline local de automação (Makefile + scripts bash)
 - Aplicação **Quarkus** compilada e empacotada
 - Imagem de container Docker (base Eclipse Temurin)
@@ -40,7 +40,42 @@ A aplicação escolhida foi baseada no projeto [quarkus-getting-started](https:/
   - **PRD** (Produção simulado)
 - Documentação técnica detalhada
 
-## Requisitos Técnicos
+## Visão Geral da Solução
 
-- **Imagem de Container Base:** [Docker Hub Eclipse Temurin](https://hub.docker.com/_/eclipse-temurin)
-- **Código da aplicação:** [Quarkus-getting-started](https://github.com/quarkusio/quarkus-quickstarts/tree/main/getting-started)
+O diagrama abaixo, criado com a sintaxe do [Mermaid](https://mermaid.js.org/), apresenta de forma clara os principais componentes e fluxos de implantação da solução, ajudando no entendimento da arquitetura como um todo.
+
+```mermaid
+flowchart TD
+
+    subgraph DevEnv[ **Pipeline de CI/CD**  ]
+        A[**GNU Make + Scripts Shell**] --> B[**Dockerfile** <br/> Build da imagem]
+        B --> C[**Trivy** <br/> Scan img e manifests]
+        B --> D[**Sonarqube localhost:9000**<br/> docker-compose.yaml <br>]
+        C --> E[Deploy Pipeline]
+        D --> E
+    end
+
+    subgraph Clusters["**Clusters Minikube**"]
+        direction TB
+
+        subgraph DES["Cluster Minikube - **des**"]
+            NsDes[Namespace: des]
+            IngressDes[Ingress Controller<br/>**des.quarkus-app.local**]
+            API1[Quarkus API **/hello**]
+        end
+
+        subgraph PRD["Cluster Minikube - **prd**"]
+            NsPrd[Namespace: prd]
+            IngressPrd[Ingress Controller<br/>**prd.quarkus-app.local**]
+            API2[Quarkus API **/hello**]
+        end
+    end
+
+    E --> NsDes
+    NsDes --> IngressDes --> API1
+    API1 --> Cond{DES está ok <br/>&& <br/>Aprovaram <br/> deploy em PRD?} .-> NsPrd
+    NsPrd --> IngressPrd --> API2
+
+```
+
+[⬆️ Ver Documentos Importantes](#documentos-importantes)

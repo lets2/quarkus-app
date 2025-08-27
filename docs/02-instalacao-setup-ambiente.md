@@ -2,6 +2,42 @@
 
 # 2. Instalação e Setup do Ambiente
 
+O diagrama abaixo, criado com a sintaxe do [Mermaid](https://mermaid.js.org/), apresenta de forma clara os principais componentes e fluxos de implantação da solução, ajudando no entendimento da arquitetura como um todo.
+
+```mermaid
+flowchart TD
+
+    subgraph DevEnv[ **Pipeline de CI/CD**  ]
+        A[**GNU Make + Scripts Shell**] --> B[**Dockerfile** <br/> Build da imagem]
+        B --> C[**Trivy** <br/> Scan img e manifests]
+        B --> D[**Sonarqube localhost:9000**<br/> docker-compose.yaml <br>]
+        C --> E[Deploy Pipeline]
+        D --> E
+    end
+
+    subgraph Clusters["**Clusters Minikube**"]
+        direction TB
+
+        subgraph DES["Cluster Minikube - **des**"]
+            NsDes[Namespace: des]
+            IngressDes[Ingress Controller<br/>**des.quarkus-app.local**]
+            API1[Quarkus API **/hello**]
+        end
+
+        subgraph PRD["Cluster Minikube - **prd**"]
+            NsPrd[Namespace: prd]
+            IngressPrd[Ingress Controller<br/>**prd.quarkus-app.local**]
+            API2[Quarkus API **/hello**]
+        end
+    end
+
+    E --> NsDes
+    NsDes --> IngressDes --> API1
+    API1 --> Cond{DES está ok <br/>&& <br/>Aprovaram <br/> deploy em PRD?} .-> NsPrd
+    NsPrd --> IngressPrd --> API2
+
+```
+
 ## 2.1. Instalação de ferramentas
 
 As principais ferramentas podem ser instaladas manualmente ou via gerenciador de pacotes. Links oficiais:
@@ -14,6 +50,7 @@ As principais ferramentas podem ser instaladas manualmente ou via gerenciador de
 - [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/)
 - [Act](https://nektosact.com/installation/)
 - [GNU Make](https://www.gnu.org/software/make/#download)
+- [jq](https://jqlang.org/download/)
 
 ### 2.1.1. Verificação das versões instaladas:
 
@@ -28,49 +65,77 @@ kubectl version
 kustomize version
 act --version
 make --version
+jq --version
 ```
+
+Depois de instalar as ferramentas, a próxima etapa é configurar alguns elementos fundamentais para a infraestrutura, são eles:
+
+- **Minikube**
+  - Inicializar cluster Minikube do ambiente de **des**;
+  - Inicializar cluster Minikube do ambiente de **prd**;
+  - Instalar o **ingress** no cluster de des e de **prd**;
+  - Mapear os IPs de cada cluster para o domínio correspondente e salvar em **/etc/hosts**.
+- **Sonarqube server**
+  - Executar um container com Sonarqube server
+  - Acessar [http://localhost:9000](http://localhost:9000) para criar **project-key** e gerar **token**
+- Configurar **.env** com as variáveis de ambiente
 
 ## 2.2. Configuração do Minikube
 
-Para aproveitar o engine do Docker já instalado, evitando a criação de uma VM separada, o minikube permite passar o driver do docker ao aplicar o comando de iniciar o cluster:
+Para aproveitar o engine do Docker já instalado, evitando a criação de uma VM separada, o minikube permite passar o driver do docker ao aplicar o comando de iniciar o cluster. Essa flag, bem como outros comandos que permitem gerenciar o ciclo de vida dos clusters, foram incluídos em `infra/minikube/Makefile`.
+
+Para iniciar os clusters de **des** e **prd**, instalar o addon **ingress** e criar um namespace para cada um, a partir da raiz do projeto, aplique esses comandos:
 
 ```bash
-minikube start --driver=docker
+# supondo que esteja na raiz do projeto
+make -C infra/minikube start-cluster CLUSTER=des
+make -C infra/minikube start-cluster CLUSTER=prd
 ```
 
-Ative o addon **Ingress** dentro do cluster Minikube, através desse comando:
+![Iniciando o cluster do ambiente de desenvolvimento](./assets/img01-start.png)
+Aplicar o comando acima é equivalente a aplicar esses comandos:
 
 ```bash
-minikube addons enable ingress
+minikube start -p $(CLUSTER) --cpus=2 --memory=4g --driver=docker
+minikube addons enable ingress -p $(CLUSTER)
+kubectl --context=$(CLUSTER) create namespace $(NAMESPACE) || true
 ```
 
-Ao habilitar o addon Ingress, o Minikube instala automaticamente um controller (por exemplo, NGINX) e configura tudo. O Ingress atua como um roteador HTTP/HTTPS dentro do cluster, permitindo expor múltiplos services em um único endereço IP, usando regras de host e path.
+Ao habilitar o addon **Ingress**, o Minikube instala automaticamente um controller (por exemplo, NGINX) e configura tudo. O Ingress atua como um roteador HTTP/HTTPS dentro do cluster, permitindo expor múltiplos services em um único endereço IP, usando regras de host e path. Para conferir se o ingress de cada cluster está funcionando adequadamente, aplique esses comandos:
 
 ```bash
-minikube start --driver=docker
-minikube addons enable ingress
+kubectl --context=des -n ingress-nginx get pods
+kubectl --context=prd -n ingress-nginx get pods
 ```
+
+A flag `--context` serve para indicar em qual cluster você deseja obervar.
+![Verifica estado do ingress](./assets/img02-ingress.png)
 
 ## 2.3. Configuração de DNS local (hosts)
 
-### 2.3.1. Determinar o IP do Minikube
+### 2.3.1. Determinar os IPs dos clusters
 
-O IP do Minikube é usado para expor services do tipo NodePort e LoadBalancer. No caso de driver Docker, trata-se do IP da rede interna do container que simula o node. Precisamos desse IP para fazer a associação de DNS local. Aplique o comando a seguir:
+O IP de cada cluster Minikube é usado para expor services do tipo **NodePort** e **LoadBalancer**. No caso de driver Docker, trata-se do IP da rede interna do container que simula o node. Precisamos desses IPs para fazer a associação de DNS local. Aplique o comando a seguir:
 
 ```bash
-minikube ip
+minikube ip -p des
+minikube ip -p prd
 ```
 
-### 2.3.2. Adicionar o ip no arquivo de hosts
+![IPs dos clusters minikube](./assets/img03-ips.png)
+
+A flag `-p` (`--profile`) indica qual cluster você deseja obter o ip.
+
+### 2.3.2. Adicionar os IPs no arquivo de hosts
 
 Nesse desafio, temos dois ambientes (des e prd), os manifests de kubernetes (ver k8s/overlays/des e k8s/overlays/prd) definem os domínios:
 
-- `des.minikube`
-- `prd.minikube`
+- `des.quarkus-app.local`
+- `prd.quarkus-app.local`
 
-O ingress será responsável por direcionar requisições para esses domínios para os serviços correspondentes.
-No entanto, para que a resolução de DNS local aconteça, precisamos associar esses domínios ao ip do minikube no arquivo de hosts.
-Adicione o ip do minikube no arquivo de hosts (`/etc/hosts`). Abra o arquivo com o comando abaixo:
+O ingress de cada cluster será responsável por direcionar requisições para os serviços correspondentes. No entanto, para que a resolução de DNS local aconteça, precisamos associar esses domínios ao IP de cada cluster no arquivo de hosts.
+
+Adicione os IPs no arquivo de hosts (`/etc/hosts`). Abra o arquivo com o comando abaixo:
 
 ```bash
 sudo nano /etc/hosts
@@ -79,19 +144,22 @@ sudo nano /etc/hosts
 Adicione os domínios:
 
 ```bash
-<IP_DO_MINIKUBE>  des.minikube
-<IP_DO_MINIKUBE>  prd.minikube
+<IP_DO_MINIKUBE_DES>  des.quarkus-app.local
+<IP_DO_MINIKUBE_PRD>  prd.quarkus-app.local
 ```
 
 Por exemplo,
 
 ```bash
-# supondo que minikube ip retorne 192.168.49.2
-192.168.49.2   des.minikube
-192.168.49.2   prd.minikube
+192.168.58.2   des.quarkus-app.local
+192.168.67.2   prd.quarkus-app.local
 ```
 
-Dessa forma, as requisições para http://des.minikube e http://prd.minikube são convertidas para o minikube ip e, com a informação de host, o Ingress roteará para os respectivos destinos.
+Salve as mudanças (você pode aplicar `sudo cat /etc/hosts` para confirmar que o arquivo está atualizado).
+
+![Arquivo de hosts](./assets/img04-hosts.png)
+
+Dessa forma, as requisições para http://des.quarkus-app.local e http://prd.quarkus-app.local são convertidas para o IP, com a informação de host, e o Ingress responsável daquele cluster roteará para os respectivos destinos.
 
 ## 2.4. SonarQube server
 
@@ -105,7 +173,7 @@ Para subir SonarQube localmente, é possível aplicar esse comando:
 docker run -d --name sonarserver -p 9000:9000 sonarqube:9.9.8-community
 ```
 
-Alternativamente, você pode usar o docker-compose.yaml disponível em **`./infra/sonar-server/docker-compose.yaml`**. Basta abrir o terminal na raiz do projeto e aplicar o comando a seguir:
+Alternativamente, você pode usar o `docker-compose.yaml` disponível em **`./infra/sonar-server/docker-compose.yaml`**. Basta abrir o terminal na raiz do projeto e aplicar o comando abaixo:
 
 ```bash
 # supondo terminal na raiz do projeto
@@ -127,6 +195,8 @@ Lembre-se de verificar se o container está ativo:
 ```bash
 docker ps
 ```
+
+![Instancia do sonarqube](./assets/img05-sonar-docker.png)
 
 Ao final do desenvolmento, o usuário pode derrubar o container por meio desse comando:
 
@@ -153,6 +223,8 @@ Siga esse passo a passo:
 1. Clique em **Set Up**
 1. Na página seguinte, clique em **Locally**
 1. Clique no botão **Generate** para criar um token de autenticação (`project token`).
+
+![Gerar token do sonarqube](./assets/img06-sonar-token.png)
 
 Após esses passos, você deve obter algo similar a isso:
 
@@ -187,7 +259,7 @@ Substitua o valores entre `< >` pelo real valor da variável. Por exemplo, no it
 
 > **Atenção, insira as informações SEM aspas!**
 
-Para ilustrar um exemplo de `.env` devidamente preenchido, observe a seguir:
+Para ilustrar um exemplo de `.env` devidamente preenchido, observe abaixo:
 
 ```bash
 SONAR_SERVER=http://localhost:9000
@@ -205,4 +277,4 @@ Com o ambiente corretamente configurado, a próxima etapa é conhecer e executar
 
 [⬅️ Anterior: 1. Requisitos](./01-requisitos.md)
 
-[➡️ Próximo: 3. Etapas e Execução do Pipeline](./03-pipeline.md)
+[➡️ Próximo: 3. Versionamento, Etapas e Execução da Pipeline](./03-pipeline.md)
