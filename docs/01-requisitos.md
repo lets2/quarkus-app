@@ -18,10 +18,11 @@ A solução foi desenvolvida e testada em **Ubuntu 22.04** como sistema host.
 | **Act**        | v0.2.80                         |                                                       |
 | **SonarQube**  | sonarqube:9.9.8-community       | utilizado via container Docker                        |
 | **Trivy**      | aquasec/trivy:0.65.0            | utilizado via container Docker                        |
+| **jq**         | 1.6                             |                                                       |
 
 ## 1.2. Observações
 
-- Todas as versões acima foram as utilizadas no ambiente de desenvolvimento, podendo ser substituídas por versões equivalentes ou superiores, desde que compatíveis.
+- Todas as versões acima foram as utilizadas no sistema host (ubuntu 22.04), podendo ser substituídas por versões equivalentes ou superiores, desde que compatíveis.
 - O uso de **JDK 21** não apresentou incompatibilidades, pois em [getting-started](https://github.com/quarkusio/quarkus-quickstarts/tree/main/getting-started#requirements) pede-se JDK 17+.
 
 ## 1.3. Requisitos Técnicos do Desafio
