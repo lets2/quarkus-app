@@ -11,6 +11,21 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- Cria scripts Makefile para gerenciar o ciclo de vida dos clusters
+- Adiciona endpoint de liveness nos manifests
+
+### Changed
+
+- Modifica pipeline da aplicação para realizar deploy em dois clusters distintos
+- Atualiza DNS de host no ingress de des e prd para `<ambiente>.quarkus-app.local`
+- Adapta scripts shell para usarem o contexto/profile do cluster baseado no ambiente
+- Atualizar o hostname da aplicação no teste de disponibilidade
+- Atualiza a documentação
+
+## [1.1.0] - 2025-08-24
+
+### Added
+
 - Pipeline estruturado com **Makefile** e scripts shell:
   - Build da aplicação usando Maven
   - Build da imagem Docker
